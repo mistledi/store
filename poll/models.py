@@ -2,6 +2,7 @@ from operator import mod
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.conf import settings
 # Create your models here.
 
 
@@ -131,7 +132,7 @@ class Product(models.Model):
     p_fabric =  models.CharField(blank=True, null=True, max_length=255, verbose_name="Material")
     p_interfase = models.CharField(blank=True, null=True, max_length=255, verbose_name="Interface")
     
-    
+    users_wishlist = models.ManyToManyField(User, related_name="user_wishlist", blank=True)
     
     count = models.IntegerField(blank=True, null=True, verbose_name="count")
     objects = models.Manager()

@@ -1,3 +1,4 @@
+from django.contrib import messages
 from base64 import urlsafe_b64decode
 from dataclasses import field
 from itertools import product
@@ -7,7 +8,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from multiprocessing import context
 from re import template
 from turtle import title
-from django.http import Http404, HttpResponse, HttpResponseNotFound
+
+from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
 from .models import *
 from .forms import CommentForm, EmailPostForm, SearchForm
@@ -74,7 +76,7 @@ class ProductDetailView(DetailView):
 # create new product 
 class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product    
-    fields = ['p_title','price', 'p_description', 'cat', 'p_photo']
+    fields = ['p_title','p_price', 'p_description', 'cat', 'p_photo']
     
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -335,6 +337,22 @@ def post_search(request):
 
 
 
+@login_required
+def wishlist(request):
+    products = Product.objects.filter(users_wishlist=request.user)
+    return render(request, "poll/dash/user_wish_list.html", {"wishlist": products})
+
+
+@login_required
+def add_to_wishlist(request, id):
+    product = get_object_or_404(Product, id=id)
+    if product.users_wishlist.filter(id=request.user.id).exists():
+        product.users_wishlist.remove(request.user)
+        messages.success(request, product.p_title + " has been removed from your WishList")
+    else:
+        product.users_wishlist.add(request.user)
+        messages.success(request, "Added " + product.p_title + " to your WishList")
+    return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
 
@@ -367,7 +385,7 @@ def cart_add(request, id):
     cart = Cart(request)
     product = Product.objects.get(id=id)
     cart.add(product=product)
-    return redirect("catalog")
+    return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
 @login_required(login_url="/users/login")
@@ -375,7 +393,7 @@ def item_clear(request, id):
     cart = Cart(request)
     product = Product.objects.get(id=id)
     cart.remove(product)
-    return redirect("catalog")
+    return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
 @login_required(login_url="/users/login")
@@ -383,7 +401,7 @@ def item_increment(request, id):
     cart = Cart(request)
     product = Product.objects.get(id=id)
     cart.add(product=product)
-    return redirect("catalog")
+    return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
 @login_required(login_url="/users/login")
@@ -391,16 +409,16 @@ def item_decrement(request, id):
     cart = Cart(request)
     product = Product.objects.get(id=id)
     cart.decrement(product=product)
-    return redirect("catalog")
+    return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
 @login_required(login_url="/users/login")
 def cart_clear(request):
     cart = Cart(request)
     cart.clear()
-    return redirect("catalog")
+    return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
 @login_required(login_url="/users/login")
 def cart_detail(request):
-    return render(request, 'poll/catalog.html')
+    return HttpResponseRedirect(request.META["HTTP_REFERER"])

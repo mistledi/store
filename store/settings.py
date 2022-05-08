@@ -187,3 +187,5 @@ CACHES = {
 
 
 CART_SESSION_ID = 'cart'
+
+
