@@ -73,17 +73,6 @@ class ProductShoppingcart(models.Model):
 
     
 
-class ProductWishlist(models.Model):
-    product = models.OneToOneField('Product', on_delete=models.CASCADE, primary_key=True)
-    buyer = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    
-
-
-class WishList(models.Model):
-    buyer = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    date_added = models.DateField(blank=True, null=True)
-
     
 
 
