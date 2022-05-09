@@ -18,14 +18,9 @@ class Order(models.Model):
     delivery_date = models.DateField(blank=True, null=True)
     order_status = models.CharField(max_length=1)
     quantity = models.BigIntegerField()
-
+    product_id = models.ForeignKey('Product', on_delete=models.CASCADE)
     
-class OrderProduct(models.Model):
-    order = models.OneToOneField(Order, on_delete=models.CASCADE, primary_key=True)
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
 
-    class Meta:
-        unique_together = (('order', 'product'),)
 
 
     
@@ -67,23 +62,64 @@ class ContactDetail(models.Model):
 
 
 
-class ProductShoppingcart(models.Model):
-    product = models.OneToOneField('Product', on_delete=models.CASCADE, primary_key=True)
-    buyer = models.ForeignKey(User, on_delete=models.CASCADE)
+
 
     
 
     
+
+
+# class ShoppingCart(models.Model):
+#     buyer = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+#     product_id = models.OneToOneField('Product', on_delete=models.CASCADE, primary_key=True)
+#     date_added = models.DateField(blank=True, null=True)
+
+
+# //////////////////////////////////////////////
+
+class ProductShoppingCart(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
+    ordered = models.BooleanField(default=False)
+    item = models.ForeignKey('Product', on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+    
+
+    def __str__(self):
+        return f"{self.quantity} of {self.item.title}"
+
+    
+    
+    def get_total_item_price(self):
+        return self.quantity * self.item.p_price
+
+    
+
+    def get_final_price(self):
+        # if self.item.discount_price:
+        #     return self.get_total_discount_item_price()
+        return self.get_total_item_price()
 
 
 class ShoppingCart(models.Model):
-    buyer = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    date_added = models.DateField(blank=True, null=True)
-
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
    
+    items = models.ManyToManyField(ProductShoppingCart)
+    start_date = models.DateTimeField(auto_now_add=True)
+    ordered_date = models.DateTimeField()
+    ordered = models.BooleanField(default=False)
+    received = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.user.username
 
-
+    def get_total(self):
+        total = 0
+        for cart_item in self.items.all():
+            total += cart_item.get_total_item_price()
+        return total
+# ////////////////////////////////////////////
 class PublishedManager(models.Manager):
     def get_queryset(self):
         return super(PublishedManager, self).get_queryset().filter(status='published')
@@ -134,8 +170,8 @@ class Product(models.Model):
 
 
 
-    # def get_absolute_url(self):
-    #     return reverse('post', kwargs={'post_slug': self.slug})
+    def get_absolute_url(self):
+        return reverse('product-detail', kwargs={'slug': self.slug})
 
     # def get_absolute_url(self):
     #     return reverse('post', kwargs={"post_name": self.p_title})
