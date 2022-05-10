@@ -33,6 +33,16 @@ class CardInfo(models.Model):
     buyer = models.ForeignKey(User, on_delete=models.CASCADE)
     is_default = models.BooleanField(blank=True, null=True)
 
+
+class NShCart(models.Model):
+    n_id = models.BigIntegerField(blank=True, null=True)
+    n_quantity = models.IntegerField(blank=True, null=True)
+    n_item_id = models.BigIntegerField(blank=True, null=True)
+    users_id = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'n_sh_cart'
     
 
 
@@ -104,7 +114,7 @@ class ProductShoppingCart(models.Model):
 class ShoppingCart(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
-   
+    s_item = models.ForeignKey('Product', on_delete=models.CASCADE)
     items = models.ManyToManyField(ProductShoppingCart)
     start_date = models.DateTimeField(auto_now_add=True)
     ordered_date = models.DateTimeField()
@@ -187,7 +197,7 @@ class Product(models.Model):
 class Category(models.Model):
     ct_category_name = models.CharField(max_length=100, db_index=True, verbose_name="Категория")
     slug = models.SlugField(max_length=255, db_index=True, verbose_name="URL")
-
+    c_count = models.IntegerField(blank=True, null=True, verbose_name="count")
 
 
         
@@ -217,3 +227,20 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'Comment by {self.name} on {self.post}'
+
+
+class discProduct(models.Model):
+    p_id = models.ImageField()
+    nob_disc_price = models.DecimalField(max_digits=9, decimal_places=2)
+    disc_price = models.DecimalField(max_digits=9, decimal_places=2)
+
+
+
+class Shortsupply(models.Model):
+    s_id = models.BigIntegerField(blank=True, null=True)
+    s_p_title = models.CharField(max_length=255, blank=True, null=True)
+    s_count = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'shortsupply'

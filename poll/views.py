@@ -11,6 +11,7 @@ from turtle import title
 
 from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
+
 from .models import *
 from .forms import CommentForm, EmailPostForm, SearchForm
 from django.core.mail import send_mail
@@ -25,7 +26,8 @@ from poll.models import Product
 from django.contrib.auth.decorators import login_required
 
 
-
+from django.db import connection
+import cx_Oracle
 # cache
 from django.views.decorators.cache import cache_page
 
@@ -145,19 +147,7 @@ class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 
 
-# @cache_page(60)
-# def catalog(request):
-#     posts = Product.objects.all()
-    
-    
-#     context = {
-#         'posts': posts,
-#         'menu': menu,
-#         'title': 'Catalog',
-#         'cat_selected': 0,
-#     }
-    
-#     return render(request,'poll/catalog.html', context=context)
+
 
 
 def login(request):
@@ -266,6 +256,9 @@ class CatalogView(ListView):
         context['menu'] = menu
         context['title'] = 'Catalog'
         context['cat_selected'] = 0
+        cursor = connection.cursor()
+        cursor.callproc("discount")
+        cursor.close()
       
         return context
 
@@ -275,7 +268,19 @@ class CatalogView(ListView):
     
     
     
+# @cache_page(60)
+# def catalog(request):
+#     posts = Product.objects.all()
     
+    
+#     context = {
+#         'posts': posts,
+#         'menu': menu,
+#         'title': 'Catalog',
+#         'cat_selected': 0,
+#     }
+    
+#     return render(request,'poll/catalog.html', context=context)    
 
 
 
@@ -377,8 +382,7 @@ def add_to_wishlist(request, id):
 
 
 
-from django.db import connection
-import cx_Oracle
+
 
 
 
@@ -389,8 +393,7 @@ import cx_Oracle
 @login_required
 def add_to_cart(request, slug):
     item = get_object_or_404(Product, slug=slug)
-    # returnedBook = BookReturnedRecord.objects.create(stud_id = request.user.student, book_id = item, returned = False)
-    # returnedBook.save()
+   
     cart_item, created = ProductShoppingCart.objects.get_or_create(
         item=item,
         user=request.user,
@@ -403,18 +406,20 @@ def add_to_cart(request, slug):
         if cart.items.filter(item__slug=item.slug).exists():
             cart_item.quantity += 1
             cart_item.save()
-            messages.info(request, "This item quantity was updated.")
+            messages.info(request, f"This item quantity was updated.")
             return redirect("cart-summary")
         else:
             cart.items.add(cart_item)
-            messages.info(request, "This item was added to your cart.")
+            messages.info(request, f"This item was added to your cart.")
             return redirect("cart-summary")
     else:
+        s_item = get_object_or_404(Product, slug=slug)
         ordered_date = timezone.now()
         cart = ShoppingCart.objects.create(
+            s_item=s_item,
             user=request.user, ordered_date=ordered_date)
         cart.items.add(cart_item)
-        messages.info(request, "This item was added to your cart.")
+        messages.info(request, f"This item was added to your cart.")
         return redirect("cart-summary")
 
 
@@ -423,7 +428,9 @@ def add_to_cart(request, slug):
 @login_required
 def remove_from_cart(request, slug):
     item = get_object_or_404(Product, slug=slug)
+    s_item = get_object_or_404(Product, slug=slug)
     cart_qs = ShoppingCart.objects.filter(
+        s_item=s_item,
         user=request.user,
         ordered=False
     )
@@ -438,20 +445,23 @@ def remove_from_cart(request, slug):
             )[0]
             cart.items.remove(cart_item)
             cart_item.delete()
-            messages.info(request, "This item was removed from your cart.")
+            cart_qs.delete()
+            messages.info(request, f"This item was removed from your cart.")
             return redirect("cart-summary")
         else:
-            messages.info(request, "This item was not in your cart")
+            messages.info(request, f"This item was not in your cart")
             return redirect("product-detail", slug=slug)
     else:
-        messages.info(request, "You do not have an active cart")
+        messages.info(request, f"You do not have an active cart")
         return redirect("product-detail", slug=slug)
 
 
 @login_required
 def remove_single_item_from_cart(request, slug):
     item = get_object_or_404(Product, slug=slug)
+    s_item = get_object_or_404(Product, slug=slug)
     cart_qs = ShoppingCart.objects.filter(
+        s_item = s_item,
         user=request.user,
         ordered=False
     )
@@ -468,14 +478,18 @@ def remove_single_item_from_cart(request, slug):
                 cart_item.quantity -= 1
                 cart_item.save()
             else:
+                
                 cart.items.remove(cart_item)
-            messages.info(request, "This item quantity was updated.")
+                cart_item.delete()
+                cart_qs.delete()
+                
+            messages.info(request, f"This item quantity was updated.")
             return redirect("cart-summary")
         else:
-            messages.info(request, "This item was not in your cart")
+            messages.info(request, f"This item was not in your cart")
             return redirect("product-detail", slug=slug)
     else:
-        messages.info(request, "You do not have an active cart")
+        messages.info(request, f"You do not have an active cart")
         return redirect("product-detail", slug=slug)
 
 
