@@ -237,10 +237,7 @@ class discProduct(models.Model):
 
 
 class Shortsupply(models.Model):
-    s_id = models.BigIntegerField(blank=True, null=True)
     s_p_title = models.CharField(max_length=255, blank=True, null=True)
     s_count = models.IntegerField(blank=True, null=True)
 
-    class Meta:
-        managed = False
-        db_table = 'shortsupply'
+    

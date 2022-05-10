@@ -67,12 +67,14 @@ class AboutPage(ListView):
 
 # view for show_post  
 class ProductDetailView(DetailView):
-    model = Product    
-   
+    model = Product
     
+
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['menu'] = menu
+        if request.method == 'POST':
+            messages.success(request, f'Your account has been created! You are now able to log in')
         return context
     
 # create new product 
@@ -512,4 +514,3 @@ class ShoppingCartSummaryView(LoginRequiredMixin, View):
         
         
         
-    
