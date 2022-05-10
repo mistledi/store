@@ -1,16 +1,24 @@
 {% extends "poll/base.html" %}
 {% block title %}Users Wish List{% endblock %}
-
 {% block content %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500&family=Inconsolata:wght@200;300&family=Josefin+Sans:wght@100&family=Macondo&family=Pacifico&family=Paytone+One&family=Permanent+Marker&family=Rajdhani:wght@300&display=swap" rel="stylesheet">
+
 <div class="col-12 mx-auto">
-  <h1 class="h3">My Wishlist</h1>
-  <div>Manage your Wishlist</div>
+  <h1 style="font-family: 'Josefin Sans', sans-serif;
+  font-family: 'Macondo', cursive;
+  font-family: 'Pacifico', cursive;
+  font-family: 'Paytone One', sans-serif;
+  font-family: 'Permanent Marker', cursive;
+  font-family: 'Rajdhani', sans-serif;">My Wishlist</h1>
+
   <hr />
 
   {% if wishlist %}
   {% for product in wishlist  %}
 
-  <div class="card mb-3 rounded-0">
+  <div class="card mb-3 rounded-0" style="margin-left: 20px">
     <div class="row g-0">
       <div class="col-md-2">
         {% for image in posts  %}
@@ -20,13 +28,18 @@
           
         {% endfor %}
       </div>
-      <div class="col-md-10">
-        <div class="card-body">
-          <h5 class="card-title">{{product.p_title}}</h5>
-          <p class="card-text">{{product.p_description}}</p>
-          <p class="card-text"><small class="text-muted">{{product.p_price}}</small></p>
-          <a type="button" class="btn btn-primary fw500 btn-sm" href="{% url 'user_wishlist' product.id %}">Remove from Wishlist</a>
+            
+      <div class="card text-black">
+
+          <div class="cardo" >
+            <img src="{{product.p_photo.url}}" alt="" width="250px" height="250px"style="padding: 20px; "  >
+            <div class="down">
+            <p class="pt" style="font-size: 25px; font-family: 'Inconsolata', monospace;"> {{product.p_title}}</p>
+            <p class="tg">  {{product.p_price}} T</p>
+            <a href="{{ product.get_absolute_url }}" id="btn" class="btn btn-outline-dark">More</a>
+          </div>
         </div>
+
       </div>
     </div>
   </div>

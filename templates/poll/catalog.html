@@ -1,18 +1,23 @@
 {% extends 'poll/base.html' %}
 {% block content %}
+{% load static %}
 <!-- <h1>{{title}}</h1> -->
-
-
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300&family=Koulen&family=Raleway:wght@200;400&display=swap" rel="stylesheet">
+<link href="{% static "poll/css/catalog.css" %}" rel="stylesheet">
+<body style="background-color:#f4f4f4;">
 
 <section style="display:flex; justify-content: center">
   {% for t in posts %}
-      <div style="padding: 20px;  border: 1px solid black; margin: 20px; box-shadow: 10px 3px 3px lightgrey; margin-left: 80px" >
+      <div class="cardo" style="border: 1px solid lightgrey" >
         <img src="{{t.p_photo.url}}" alt="" width="250px" height="250px"style="padding: 20px; "  >
-        <p class="pt-3" style="font-size: 25px; font-family: 'Inconsolata', monospace;"> {{t.p_title}}</p>
-        <p style="font-family: 'Inconsolata', monospace;">{{t.price}} t</p>
+        <div class="down">
+        <p class="pt" style="font-size: 25px; font-family: 'Inconsolata', monospace;"> {{t.p_title}}</p>
+        <p class="tg">  {{t.p_price}} T</p>
         <a href="{{ t.get_absolute_url }}" id="btn" class="btn btn-outline-dark">More</a>
       </div>
+    </div>
 {% endfor %}
 </section>  
 
@@ -27,32 +32,9 @@
 
 
 
-  <a href="{% url "wishlist" %}" class="text-reset text-decoration-none" role="button"
-  style="max-width: 540px;">
-  <div class="card mb-3">
-    <div class="row g-0">
-      <div class="col-2 position-relative">
-        <svg class="position-absolute top-50 start-50 translate-middle" xmlns="http://www.w3.org/2000/svg"
-          width="30" height="30" fill="currentColor" class="bi bi-card-checklist" viewBox="0 0 16 16">
-          <path
-            d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z" />
-          <path
-            d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z" />
-        </svg>
-      </div>
-      <div class="col-10">
-        <div class="card-body ps-0 ps-md-1">
-          <h1 class="h5">Your Wish List</h1>
-          <p class="card-text small text-muted">View your Wish List</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</a>
-  
-
 
 
 
 
 {% endblock %}
+</body>
